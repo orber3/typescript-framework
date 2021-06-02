@@ -1,17 +1,16 @@
 import {User} from './models/User'
+import {Collection} from './models/Collection'
+import { UserForm } from './views/UserForm'
 
-const user =  new User({  name: 'melmel' , age: 2 })
+const username = User.buildUser({name: "or" , age: 30})
+const root = document.getElementById('root')
+if(root) { 
 
-// const on  = user.on
-// on('change' , () => { console.log('3232')})
+  const userForm = new UserForm( root, username)
+  userForm.render()
 
-// const trigger = user.trigger
-// trigger('change')
+}
+else { 
+  throw new Error('root not found')
+}
 
-
-user.on('save', () => { 
-  console.log(user)
-
-})
-
-user.save()
