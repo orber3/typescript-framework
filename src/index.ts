@@ -1,13 +1,17 @@
 import {User} from './models/User'
 
-const user =  new User({name: 'new' , age: 33})
+const user =  new User({  name: 'melmel' , age: 2 })
 
-user.events.on('change' , () => {console.log('das') })
-// user.on('trr' , () => {} )
+// const on  = user.on
+// on('change' , () => { console.log('3232')})
+
+// const trigger = user.trigger
+// trigger('change')
 
 
-user.events.trigger('change')
-// console.log(user)
-// user.trigger('sdfsdf')
+user.on('save', () => { 
+  console.log(user)
+
+})
 
 user.save()

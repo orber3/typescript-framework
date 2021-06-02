@@ -1,5 +1,4 @@
 import axios, { AxiosPromise, AxiosResponse } from 'axios'
-import {UserProps} from './User'
 
 
 
@@ -12,8 +11,9 @@ export class Sync <T extends HasId>{
 
 
       fetch(id: number): AxiosPromise { 
-      return  axios.get(`${this.rootUrl}/${id}`)
-        }
+   
+        return axios.get(`${this.rootUrl}/${id}`);
+      }
     
     
       save(data: T): AxiosPromise { 
