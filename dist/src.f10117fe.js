@@ -2198,17 +2198,7 @@ function (_super) {
   __extends(User, _super);
 
   function User() {
-    var _this = _super !== null && _super.apply(this, arguments) || this;
-
-    _this.setRandomAge = function () {
-      var age = Math.round(Math.random() * 100);
-
-      _this.set({
-        age: age
-      });
-    };
-
-    return _this;
+    return _super !== null && _super.apply(this, arguments) || this;
   }
 
   User.buildUser = function (attrs) {
@@ -2221,45 +2211,74 @@ function (_super) {
     });
   };
 
+  User.prototype.setRandomAge = function () {
+    var age = Math.round(Math.random() * 100);
+    this.set({
+      age: age
+    });
+  };
+
   return User;
 }(Model_1.Model);
 
 exports.User = User;
-},{"./Attributes":"src/models/Attributes.ts","./Eventing":"src/models/Eventing.ts","./ApiSync":"src/models/ApiSync.ts","./Model":"src/models/Model.ts","./Collection":"src/models/Collection.ts"}],"src/views/UserForm.ts":[function(require,module,exports) {
+},{"./Attributes":"src/models/Attributes.ts","./Eventing":"src/models/Eventing.ts","./ApiSync":"src/models/ApiSync.ts","./Model":"src/models/Model.ts","./Collection":"src/models/Collection.ts"}],"src/views/CollectionView.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UserForm = void 0;
+exports.CollectionView = void 0;
 
-var UserForm =
+var CollectionView =
 /** @class */
 function () {
-  function UserForm(parent, model) {
-    var _this = this;
+  function CollectionView(parent, Collection) {
+    this.parent = parent;
+    this.Collection = Collection;
+  }
 
+  CollectionView.prototype.render = function () {
+    this.parent.innerHTML = "";
+    var templateElement = document.createElement('template');
+
+    for (var _i = 0, _a = this.Collection.models; _i < _a.length; _i++) {
+      var model = _a[_i];
+      var itemParent = document.createElement('div');
+      this.renderItem(model, itemParent);
+      templateElement.content.append(itemParent);
+    }
+
+    this.parent.append(templateElement.content);
+  };
+
+  return CollectionView;
+}();
+
+exports.CollectionView = CollectionView;
+},{}],"src/views/View.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.View = void 0;
+
+var View =
+/** @class */
+function () {
+  function View(parent, model) {
     this.parent = parent;
     this.model = model;
-
-    this.onSetAge = function () {
-      _this.model.setRandomAge();
-    };
-
-    this.onSetName = function () {
-      var input = _this.parent.querySelector('input');
-
-      var name = input.value;
-
-      _this.model.set({
-        name: name
-      });
-    };
-
+    this.regions = {};
     this.bindlmodel();
   }
 
-  UserForm.prototype.bindlmodel = function () {
+  View.prototype.eventsMap = function () {
+    return {};
+  };
+
+  View.prototype.bindlmodel = function () {
     var _this = this;
 
     this.model.on('change', function () {
@@ -2267,18 +2286,11 @@ function () {
     });
   };
 
-  UserForm.prototype.eventsMap = function () {
-    return {
-      'click:.set-age': this.onSetAge,
-      'click:.set-name': this.onSetName
-    };
+  View.prototype.regionsMap = function () {
+    return {};
   };
 
-  UserForm.prototype.template = function () {
-    return "\n        <div> \n        <h1> user form </h1>\n        <div> \n          user name: " + this.model.get('name') + "\n          <br>\n          user age: " + this.model.get('age') + "\n\n        </div>\n        <input />\n        <button class=\"set-name\"> change name </button>\n        <button class=\"set-age\"> set random age  </button>\n\n        </div>\n        ";
-  };
-
-  UserForm.prototype.bindEvents = function (fragment) {
+  View.prototype.bindEvents = function (fragment) {
     var eventsMap = this.eventsMap();
 
     var _loop_1 = function _loop_1(eventKey) {
@@ -2296,19 +2308,150 @@ function () {
     }
   };
 
-  UserForm.prototype.render = function () {
+  View.prototype.mapRegions = function (fragment) {
+    var regionsMap = this.regionsMap();
+
+    for (var key in regionsMap) {
+      console.log(key);
+      console.log(fragment);
+      var selector = regionsMap[key];
+      var element = fragment.querySelector(selector);
+
+      if (element) {
+        this.regions[key] = element;
+      }
+    }
+  };
+
+  View.prototype.onRender = function () {};
+
+  View.prototype.render = function () {
     this.parent.innerHTML = '';
     var templateElement = document.createElement('template');
     templateElement.innerHTML = this.template();
     this.bindEvents(templateElement.content);
+    this.mapRegions(templateElement.content);
+    this.onRender();
     this.parent.append(templateElement.content);
   };
 
-  return UserForm;
+  return View;
 }();
 
-exports.UserForm = UserForm;
-},{}],"src/index.ts":[function(require,module,exports) {
+exports.View = View;
+},{}],"src/views/UserShow.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.UserShow = void 0;
+
+var View_1 = require("./View");
+
+var UserShow =
+/** @class */
+function (_super) {
+  __extends(UserShow, _super);
+
+  function UserShow() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  UserShow.prototype.template = function () {
+    return "\n     <div> \n      <h1> user show </h1>\n      <div> user name: " + this.model.get('name') + "</div> \n      <div> user name: " + this.model.get('age') + "</div> \n     </div>\n    \n    \n    \n    ";
+  };
+
+  return UserShow;
+}(View_1.View);
+
+exports.UserShow = UserShow;
+},{"./View":"src/views/View.ts"}],"src/views/UserList.ts":[function(require,module,exports) {
+"use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.UserList = void 0;
+
+var CollectionView_1 = require("./CollectionView");
+
+var UserShow_1 = require("./UserShow");
+
+var UserList =
+/** @class */
+function (_super) {
+  __extends(UserList, _super);
+
+  function UserList() {
+    return _super !== null && _super.apply(this, arguments) || this;
+  }
+
+  UserList.prototype.renderItem = function (model, ItemParent) {
+    new UserShow_1.UserShow(ItemParent, model).render();
+  };
+
+  return UserList;
+}(CollectionView_1.CollectionView);
+
+exports.UserList = UserList;
+},{"./CollectionView":"src/views/CollectionView.ts","./UserShow":"src/views/UserShow.ts"}],"src/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2317,15 +2460,31 @@ Object.defineProperty(exports, "__esModule", {
 
 var User_1 = require("./models/User");
 
-var UserForm_1 = require("./views/UserForm");
+var Collection_1 = require("./models/Collection");
 
-var username = User_1.User.buildUser({
-  name: "or",
-  age: 30
+var UserList_1 = require("./views/UserList"); // const user = User.buildUser({name: "or" , age: 30})
+// const root = document.getElementById('root')
+// if(root) { 
+//   const userEdit = new UserEdit(root, user);
+//   userEdit.render();
+// }
+// else { 
+//   throw new Error('root not found')
+// }
+
+
+var users = new Collection_1.Collection('http://localhost:3000/users', function (json) {
+  return User_1.User.buildUser(json);
 });
-var userForm = new UserForm_1.UserForm(document.getElementById('root'), username);
-userForm.render();
-},{"./models/User":"src/models/User.ts","./views/UserForm":"src/views/UserForm.ts"}],"../../../Users/orber/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+users.on('change', function () {
+  var root = document.getElementById('root');
+
+  if (root) {
+    new UserList_1.UserList(root, users).render();
+  }
+});
+users.fetch();
+},{"./models/User":"src/models/User.ts","./models/Collection":"src/models/Collection.ts","./views/UserList":"src/views/UserList.ts"}],"../../../Users/orber/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -2353,7 +2512,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62787" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49746" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
